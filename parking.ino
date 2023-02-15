@@ -169,26 +169,26 @@ void sendId(String path,String id){
           case 402: lcdWrite(1,"Fazer check in");
         }
       }else if(option == 2){
+        switch(httpCode){
           case 200: lcdWrite(1,"VER CLIENTE");
           case 201: lcdWrite(1,"TAG CADASTRADA");
           case 202: lcdWrite(1,"CRED ATUALIZADO");
           case 408: lcdWrite(1,"Já cadastrada");
           case 409: lcdWrite(1,"Não cadastrado");
           case 405: lcdWrite(1,"Falha cliente");
-        
+        }
       }
 
     }else{
       Serial.println("Error on HTTP request");
     }
     http.end(); //Free the resources
-    lcdClear(0);
   }else{
     Serial.println("Lost internet connection");
   }
   delay(3000);
   lcdClear();
-  lcdWrite("AGUARDANDO TAG");
+  lcdWrite(1,"AGUARDANDO TAG");
 }
 
 void lcdPrintMode(String message){
