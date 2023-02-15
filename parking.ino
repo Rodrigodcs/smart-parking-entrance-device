@@ -118,7 +118,7 @@ void rfidReader(String path){
       
       buzzerSound("read");
       lcdClear();
-      lcdWrite(0,"Enviando id...");
+      lcdWrite(0,"Enviando tag...");
 
       MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
 
@@ -152,7 +152,32 @@ void sendId(String path,String id){
       Serial.println("httpCODE: " + httpCode);
       Serial.println("PAYLOAD: " + payload);
 
-      buzzerSound(httpCode==200?"sucess":"error");
+      buzzerSound(httpCode==200 || httpCode==201 || httpCode==202?"sucess":"error");
+      
+      lcdClear();
+      if(option == 0){
+        switch(httpCode){
+          case 200: lcdWrite(1,"BEM VINDO");
+          case 409: lcdWrite(1,"Não cadastrado");
+          case 401: lcdWrite(1,"Em débito");
+          case 402: lcdWrite(1,"Fazer check out");
+        }
+      }else if(option == 1){
+        switch(httpCode){
+          case 200: lcdWrite(1,"VOLTE SEMPRE");
+          case 409: lcdWrite(1,"Não cadastrado");
+          case 402: lcdWrite(1,"Fazer check in");
+        }
+      }else if(option == 2){
+          case 200: lcdWrite(1,"VER CLIENTE");
+          case 201: lcdWrite(1,"TAG CADASTRADA");
+          case 202: lcdWrite(1,"CRED ATUALIZADO");
+          case 408: lcdWrite(1,"Já cadastrada");
+          case 409: lcdWrite(1,"Não cadastrado");
+          case 405: lcdWrite(1,"Falha cliente");
+        
+      }
+
     }else{
       Serial.println("Error on HTTP request");
     }
@@ -161,9 +186,9 @@ void sendId(String path,String id){
   }else{
     Serial.println("Lost internet connection");
   }
-  delay(5000);
+  delay(3000);
   lcdClear();
-  lcdWrite("Aguardando tag");
+  lcdWrite("AGUARDANDO TAG");
 }
 
 void lcdPrintMode(String message){
