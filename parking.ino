@@ -78,11 +78,11 @@ void loop() {
   if(ligado){
     checkButtonPress();
     if(option == 0){
-      rfidReader("/test/esp");
+      rfidReader("/check-in");
     }else if(option == 1){
-      
+      rfidReader("/check-out");
     }else if(option == 2){
-      
+      rfidReader("/clients/tag");
     }
   }
 }
@@ -113,27 +113,27 @@ void checkButtonPress(){
 }
 
 void rfidReader(String path){
-  String id = "";
-  if (rfid.PICC_IsNewCardPresent()) { // new tag is available
-    if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
-      buzzerSound("read");
+  if (rfid.PICC_IsNewCardPresent()) { // New tag present
+    if (rfid.PICC_ReadCardSerial()) { // NUID readed
       
-      lcdClear(0);
+      buzzerSound("read");
+      lcdClear();
       lcdWrite(0,"Enviando id...");
-      MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-      //Serial.print("RFID/NFC Tag Type: ");
-      //Serial.println(rfid.PICC_GetTypeName(piccType));
 
+      MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+
+      String id = "";
       for (int i = 0; i < rfid.uid.size; i++) {
         id+=rfid.uid.uidByte[i] < 0x10 ? "0" : "";
         id+=String(rfid.uid.uidByte[i], HEX);
       }
+      id.toUpperCase();
       Serial.println();
+      Serial.println("NUID_Hex: " + id);
 
       rfid.PICC_HaltA(); // halt PICC
       rfid.PCD_StopCrypto1(); // stop encryption on PCD
-      id.toUpperCase();
-      Serial.println("idHex: "+id);
+      
       sendId(path, id);
     }
   }
@@ -149,10 +149,9 @@ void sendId(String path,String id){
     
     if (httpCode > 0) {
       String payload = http.getString();
-      Serial.println("httpCODE");
-      Serial.println(String(httpCode));
-      Serial.println("PAYLOAD");
-      Serial.println(payload);
+      Serial.println("httpCODE: " + httpCode);
+      Serial.println("PAYLOAD: " + payload);
+
       buzzerSound(httpCode==200?"sucess":"error");
     }else{
       Serial.println("Error on HTTP request");
@@ -161,9 +160,10 @@ void sendId(String path,String id){
     lcdClear(0);
   }else{
     Serial.println("Lost internet connection");
-    
   }
   delay(5000);
+  lcdClear();
+  lcdWrite("Aguardando tag");
 }
 
 void lcdPrintMode(String message){
@@ -176,8 +176,10 @@ void lcdWrite(int line,String message){
   lcd.print(message);
 }
 
-void lcdClear(int line){
-  lcd.setCursor(0,line);
+void lcdClear(){
+  lcd.setCursor(0,0);
+  lcd.print("               ");
+  lcd.setCursor(0,1);
   lcd.print("               ");
 }
 
