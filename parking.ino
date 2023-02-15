@@ -158,24 +158,37 @@ void sendId(String path,String id){
       if(option == 0){
         switch(httpCode){
           case 200: lcdWrite(1,"BEM VINDO");
+          break;
           case 409: lcdWrite(1,"Não cadastrado");
+          break;
           case 401: lcdWrite(1,"Em débito");
+          break;
           case 402: lcdWrite(1,"Fazer check out");
+          break;
         }
       }else if(option == 1){
         switch(httpCode){
           case 200: lcdWrite(1,"VOLTE SEMPRE");
+          break;
           case 409: lcdWrite(1,"Não cadastrado");
+          break;
           case 402: lcdWrite(1,"Fazer check in");
+          break;
         }
       }else if(option == 2){
         switch(httpCode){
           case 200: lcdWrite(1,"VER CLIENTE");
+          break;
           case 201: lcdWrite(1,"TAG CADASTRADA");
+          break;
           case 202: lcdWrite(1,"CRED ATUALIZADO");
+          break;
           case 408: lcdWrite(1,"Já cadastrada");
+          break;
           case 409: lcdWrite(1,"Não cadastrado");
+          break;
           case 405: lcdWrite(1,"Falha cliente");
+          break;
         }
       }
 
@@ -239,7 +252,7 @@ void buzzerSound(String type){
   if(type=="read"){
     digitalWrite(LED_GREEN,HIGH);
     digitalWrite(BUZZER,HIGH);
-    delay(400);
+    delay(300);
     digitalWrite(BUZZER,LOW);
     digitalWrite(LED_GREEN,LOW);
   }
