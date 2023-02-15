@@ -209,8 +209,8 @@ void lcdClear(){
 }
 
 void buzzerSound(String type){
-  if(type=="error"){
-    digitalWrite(LED_RED,HIGH);
+  if(type=="sucess"){
+    digitalWrite(LED_GREEN,HIGH);
     digitalWrite(BUZZER,HIGH);
     delay(75);
     digitalWrite(BUZZER,LOW);
@@ -219,27 +219,27 @@ void buzzerSound(String type){
     delay(75);
     digitalWrite(BUZZER,LOW);
     delay(200);
-    digitalWrite(LED_RED,LOW);
-  }
-  if(type=="sucess"){
-    digitalWrite(LED_GREEN,HIGH);
-    digitalWrite(BUZZER,HIGH);
-    delay(100);
-    digitalWrite(BUZZER,LOW);
-    delay(100);
-    digitalWrite(BUZZER,HIGH);
-    delay(100);
-    digitalWrite(BUZZER,LOW);
-    delay(100);
-    digitalWrite(BUZZER,HIGH);
-    delay(100);
-    digitalWrite(BUZZER,LOW);
     digitalWrite(LED_GREEN,LOW);
+  }
+  if(type=="error"){
+    digitalWrite(LED_RED,HIGH);
+    digitalWrite(BUZZER,HIGH);
+    delay(100);
+    digitalWrite(BUZZER,LOW);
+    delay(100);
+    digitalWrite(BUZZER,HIGH);
+    delay(100);
+    digitalWrite(BUZZER,LOW);
+    delay(100);
+    digitalWrite(BUZZER,HIGH);
+    delay(100);
+    digitalWrite(BUZZER,LOW);
+    digitalWrite(LED_RED,LOW);
   }
   if(type=="read"){
     digitalWrite(LED_GREEN,HIGH);
     digitalWrite(BUZZER,HIGH);
-    delay(600);
+    delay(400);
     digitalWrite(BUZZER,LOW);
     digitalWrite(LED_GREEN,LOW);
   }
