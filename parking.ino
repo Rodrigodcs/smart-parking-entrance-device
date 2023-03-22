@@ -31,7 +31,7 @@ const char* ssid = "CERTTO-2BDA6";
 const char* password = "rdcsmgf1";
 
 //HTTP
-const String URL = "https://api-parking.onrender.com";
+const String URL = "https://smart-parking-api.onrender.com";
 
 void setup() {
   Serial.begin(9600);
@@ -58,14 +58,20 @@ void setup() {
   //WIFI SETUP
   WiFi.begin(ssid,password);
   Serial.print("Connecting to WiFi");
+  lcdClear();
+  lcdWrite("CONECTANDO...","");
   while(WiFi.status() != WL_CONNECTED){
     delay(300);
     Serial.print(".");
   }
   Serial.println();
   Serial.println("Connected to the WiFi network");
-  
+  lcdClear();
+  lcdWrite("CONEXAO","ESTABELECIDA");
+  delay(2000);
+  lcdClear();
   lcdPrintMode("A");
+  lcdWrite("AGUARDANDO TAG","");
 }
 
 int timer = 0;
@@ -78,11 +84,11 @@ void loop() {
   if(ligado){
     checkButtonPress();
     if(option == 0){
-      rfidReader("/check-in");
+      rfidReader("/esp/checkIn");
     }else if(option == 1){
-      rfidReader("/check-out");
+      rfidReader("/esp/checkOut");
     }else if(option == 2){
-      rfidReader("/clients/tag");
+      rfidReader("/admin/esp/tag");
     }
   }
 }
@@ -118,7 +124,7 @@ void rfidReader(String path){
       
       buzzerSound("read");
       lcdClear();
-      lcdWrite(0,"Enviando tag...");
+      lcdWrite("Enviando tag...","");
 
       MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
 
@@ -151,46 +157,56 @@ void sendId(String path,String id){
       String payload = http.getString();
       Serial.println("httpCODE: " + httpCode);
       Serial.println("PAYLOAD: " + payload);
-
-      buzzerSound(httpCode==200 || httpCode==201 || httpCode==202?"sucess":"error");
       
       lcdClear();
       if(option == 0){
         switch(httpCode){
-          case 200: lcdWrite(1,"BEM VINDO");
+          case 200: lcdWrite("BEM VINDO","");
           break;
-          case 409: lcdWrite(1,"Não cadastrado");
+          case 403: lcdWrite("TAG NAO","CADASTRADA");
           break;
-          case 401: lcdWrite(1,"Em débito");
+          case 422: lcdWrite("TAG NAO","CADASTRADA");
           break;
-          case 402: lcdWrite(1,"Fazer check out");
+          case 401: lcdWrite("CREDITOS","INSUFICIENTES");
+          break;
+          case 405: lcdWrite("E PRECISO FAZER","CHECK OUT");
+          break;
+          case 406: lcdWrite("VAGAS","ESGOTADAS");
+          break;
+          case 500: lcdWrite("ERRO NO","SERVIDOR");
           break;
         }
       }else if(option == 1){
         switch(httpCode){
-          case 200: lcdWrite(1,"VOLTE SEMPRE");
+          case 200: lcdWrite("VOLTE SEMPRE","");
           break;
-          case 409: lcdWrite(1,"Não cadastrado");
+          case 403: lcdWrite("TAG NAO","CADASTRADA");
           break;
-          case 402: lcdWrite(1,"Fazer check in");
+          case 422: lcdWrite("TAG NAO","CADASTRADA");
+          break;
+          case 405: lcdWrite("E PRECISO FAZER","CHECK IN");
+          break;
+          case 500: lcdWrite("ERRO NO","SERVIDOR");
           break;
         }
       }else if(option == 2){
         switch(httpCode){
-          case 200: lcdWrite(1,"VER CLIENTE");
+          case 200: lcdWrite("SUCESSO","");
           break;
-          case 201: lcdWrite(1,"TAG CADASTRADA");
+          case 201: lcdWrite("REGISTRO DE TAG","EFETUADO");
           break;
-          case 202: lcdWrite(1,"CRED ATUALIZADO");
+          case 422: lcdWrite("TAG NAO","CADASTRADA");
           break;
-          case 408: lcdWrite(1,"Já cadastrada");
+          case 409: lcdWrite("TAG REGISTRADA","POR OUTRO");
           break;
-          case 409: lcdWrite(1,"Não cadastrado");
+          case 401: lcdWrite("FALHA NO PEDIDO","PELO ADMIN");
           break;
-          case 405: lcdWrite(1,"Falha cliente");
+          case 500: lcdWrite("ERRO NO","SERVIDOR");
           break;
         }
       }
+      
+      buzzerSound(httpCode==200 || httpCode==201 || httpCode==202?"sucess":"error");
 
     }else{
       Serial.println("Error on HTTP request");
@@ -201,22 +217,24 @@ void sendId(String path,String id){
   }
   delay(3000);
   lcdClear();
-  lcdWrite(1,"AGUARDANDO TAG");
+  lcdWrite("AGUARDANDO TAG","");
 }
 
 void lcdPrintMode(String message){
-  lcd.setCursor(15,0);
+  lcd.setCursor(15,1);
   lcd.print(message);
 }
 
-void lcdWrite(int line,String message){
-  lcd.setCursor(0,line);
-  lcd.print(message);
+void lcdWrite(String firstLine,String secondLine){
+  lcd.setCursor(0,0);
+  lcd.print(firstLine);
+  lcd.setCursor(0,1);
+  lcd.print(secondLine);
 }
 
 void lcdClear(){
   lcd.setCursor(0,0);
-  lcd.print("               ");
+  lcd.print("                ");
   lcd.setCursor(0,1);
   lcd.print("               ");
 }
